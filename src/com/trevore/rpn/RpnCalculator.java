@@ -6,8 +6,19 @@ import java.util.StringTokenizer;
 
 public class RpnCalculator {
 
-    private Deque<Token> mInputQueue = new ArrayDeque<Token>();
+    /**
+     * The Stack that holds the current values being processed.  Stores only values and not operands.
+     */
+    private Deque<Token> mInputStack = new ArrayDeque<Token>();
+
+    /**
+     * The current token index.  Used to help output better logging.
+     */
     private int mCurrentToken = 0;
+
+    /**
+     * Determine whether logging should be outputted to System.out or not.
+     */
     private boolean mPrintLogging = false;
 
     public RpnCalculator() {
@@ -32,8 +43,8 @@ public class RpnCalculator {
      * @return
      */
     public double calculate(String input) {
-        if(mInputQueue.size() != 0) {
-            mInputQueue = new ArrayDeque<Token>(input.length());
+        if(mInputStack.size() != 0) {
+            mInputStack = new ArrayDeque<Token>(input.length());
             mCurrentToken = 0;
         }
 
@@ -43,10 +54,10 @@ public class RpnCalculator {
             mCurrentToken++;
         }
 
-        if(mInputQueue.size() != 1)
-            throw new IllegalArgumentException("Invalid result size of " + mInputQueue.size());
+        if(mInputStack.size() != 1)
+            throw new IllegalArgumentException("Invalid result size of " + mInputStack.size());
 
-        return mInputQueue.pop().getValue();
+        return mInputStack.pop().getValue();
     }
 
     /**
@@ -59,7 +70,7 @@ public class RpnCalculator {
             char temp = token.charAt(0);
             //Digit
             if(Character.isDigit(temp)) {
-                mInputQueue.push(new ValueToken(token));
+                mInputStack.push(new ValueToken(token));
                 if(mPrintLogging) System.out.println("Pushing token " + token);
             }
             //Math symbol such as + - * /
@@ -73,7 +84,7 @@ public class RpnCalculator {
         }
         //Has to be a digit if length > 1
         else {
-            mInputQueue.add(new ValueToken(token));
+            mInputStack.add(new ValueToken(token));
             if(mPrintLogging) System.out.println("Pushing token " + token);
         }
     }
@@ -83,12 +94,12 @@ public class RpnCalculator {
      * @param operand The operand detected
      */
     private void processOperator(String operand) {
-        if(mInputQueue.size() < 2)
+        if(mInputStack.size() < 2)
             throw new IllegalArgumentException("Does not have two operands for operation " + operand + " at position " + mCurrentToken + ".");
 
         char operator = operand.charAt(0); //this is safe becauase only called if length is 1
-        double first = mInputQueue.pop().getValue();
-        double second = mInputQueue.pop().getValue();
+        double first = mInputStack.pop().getValue();
+        double second = mInputStack.pop().getValue();
         ValueToken result = null;
 
         if(mPrintLogging) System.out.println("Popping " + first + " and " + second);
@@ -96,19 +107,19 @@ public class RpnCalculator {
         switch(operator) {
             case '+':
                 result = new ValueToken(second + first);
-                mInputQueue.push(result);
+                mInputStack.push(result);
                 break;
             case '-':
                 result = new ValueToken(second - first);
-                mInputQueue.push(result);
+                mInputStack.push(result);
                 break;
             case '/':
                 result = new ValueToken(second / first);
-                mInputQueue.push(result);
+                mInputStack.push(result);
                 break;
             case '*':
                 result = new ValueToken(second * first);
-                mInputQueue.push(result);
+                mInputStack.push(result);
                 break;
         }
 
