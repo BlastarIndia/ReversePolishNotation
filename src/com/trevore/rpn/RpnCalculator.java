@@ -43,23 +43,28 @@ public class RpnCalculator {
      * @return
      */
     public double calculate(String input) {
+        //Check illegal input
         if(input == null)
             throw new NullPointerException("Input cannot be null.");
 
+        //Reset the stack and counter if already present
         if(mInputStack.size() != 0) {
             mInputStack = new ArrayDeque<Token>(input.length());
             mCurrentToken = 0;
         }
 
+        //Tokenize the input String and begin to process the tokens
         StringTokenizer tokenizer = new StringTokenizer(input, " ");
         while(tokenizer.hasMoreTokens()) {
             processToken(tokenizer.nextToken());
             mCurrentToken++;
         }
 
+        //Only one shall remain...
         if(mInputStack.size() != 1)
             throw new IllegalArgumentException("Invalid result size of " + mInputStack.size());
 
+        //Gimme dat!
         return mInputStack.pop().getValue();
     }
 
@@ -100,13 +105,14 @@ public class RpnCalculator {
         if(mInputStack.size() < 2)
             throw new IllegalArgumentException("Does not have two operands for operation " + operand + " at position " + mCurrentToken + ".");
 
-        char operator = operand.charAt(0); //this is safe becauase only called if length is 1
-        double first = mInputStack.pop().getValue();
+        char operator = operand.charAt(0); //this is safe because only called if length is 1
+        double first = mInputStack.pop().getValue(); //be careful about the ordering for first and second
         double second = mInputStack.pop().getValue();
         ValueToken result = null;
 
         if(mPrintLogging) System.out.println("Popping " + first + " and " + second);
 
+        //Check the operator to see which action to perform
         switch(operator) {
             case '+':
                 result = new ValueToken(second + first);
