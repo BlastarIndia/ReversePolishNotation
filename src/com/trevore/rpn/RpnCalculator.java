@@ -43,6 +43,9 @@ public class RpnCalculator {
      * @return
      */
     public double calculate(String input) {
+        if(input == null)
+            throw new NullPointerException("Input cannot be null.");
+
         if(mInputStack.size() != 0) {
             mInputStack = new ArrayDeque<Token>(input.length());
             mCurrentToken = 0;
@@ -84,7 +87,7 @@ public class RpnCalculator {
         }
         //Has to be a digit if length > 1
         else {
-            mInputStack.add(new ValueToken(token));
+            mInputStack.push(new ValueToken(token));
             if(mPrintLogging) System.out.println("Pushing token " + token);
         }
     }
@@ -114,6 +117,9 @@ public class RpnCalculator {
                 mInputStack.push(result);
                 break;
             case '/':
+                if(first == 0)
+                    throw new IllegalArgumentException("Cannot divide by 0.");
+
                 result = new ValueToken(second / first);
                 mInputStack.push(result);
                 break;
